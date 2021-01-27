@@ -1,0 +1,45 @@
+buildscript {
+    ext {
+        springbootVersion = '2.1.7.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springbootVersion}")
+    }
+}
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // lombok
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    // Springboot
+    compile('org.springframework.boot:spring-boot-starter-web')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    // Spring Data JPA
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('com.h2database:h2')
+
+    runtimeOnly 'com.h2database:h2:1.4.199'
+
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+}
