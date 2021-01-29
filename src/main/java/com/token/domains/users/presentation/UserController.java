@@ -18,20 +18,23 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @PostMapping("/user/signUp")
-    public ResponseEntity<TokenResponse> signUp(@RequestBody UserRequest userRequest) {
+  @PostMapping("/user/signUp")
+  public ResponseEntity signUp(@RequestBody UserRequest userRequest) {
+    return userService.findByUserId(userRequest.getUserId()).isPresent()
+        ? ResponseEntity.badRequest().build()
+        : ResponseEntity.ok(userService.signUp(userRequest));
+  }
 
-        return userService.findByUserId(userRequest.getUserId()).isPresent() ? ResponseEntity.badRequest().build() :
-                ResponseEntity.ok(TokenResponse.builder().ACCESS_TOKEN((TokenUtils.generateJwtToken(userService.signUp(userRequest)))).build());
-    }
+  @PostMapping("/user/signIn")
+  public ResponseEntity<TokenResponse> signIn(@RequestBody UserRequest userRequest) {
 
-    @GetMapping("/info")
-    public ResponseEntity<List<UsersEntity>> findUser(){
-        return ResponseEntity.ok().body(userService.findUsers());
+    return ResponseEntity.ok().body(userService.signIn(userRequest));
+  }
 
-    }
-
-
+  @GetMapping("/info")
+  public ResponseEntity<List<UsersEntity>> findUser() {
+    return ResponseEntity.ok().body(userService.findUsers());
+  }
 }
