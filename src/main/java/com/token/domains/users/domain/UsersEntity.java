@@ -10,27 +10,19 @@ import javax.persistence.*;
 @RequiredArgsConstructor
 @Table(name = "users")
 @Entity
-public class UsersEntity{
+public class UsersEntity {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    private Long id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id
+  private Long id;
 
-    private String userId;
+  private String userId;
 
-    private String pw;
+  private String pw;
 
-    private String refreshToken;
-
-//    @Enumerated(EnumType.STRING)
-//    private UserRole role;
-
-    @Builder
-    public UsersEntity(String userId, String pw,String refreshToken) {
-        this.userId = userId;
-        this.pw = pw;
-        this.refreshToken = refreshToken;
-//        this.role = role;
-    }
-
+  @Builder
+  public UsersEntity(String userId, String pw) {
+    this.userId = userId;
+    this.pw = pw;
+  }
 }
