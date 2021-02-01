@@ -28,7 +28,7 @@ public class UserController {
   }
 
   @PostMapping("/user/signIn")
-  public ResponseEntity<TokenResponse> signIn(@RequestBody UserRequest userRequest) {
+  public ResponseEntity<TokenResponse> signIn(@RequestBody UserRequest userRequest) throws Exception {
 
     return ResponseEntity.ok().body(userService.signIn(userRequest));
   }

@@ -8,6 +8,7 @@ import com.token.domains.users.application.dto.UserRequest;
 import com.token.domains.users.domain.UsersEntity;
 import com.token.domains.users.domain.UsersRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,6 +21,7 @@ public class UserService {
   private final UsersRepository usersRepository;
   private final TokenUtils tokenUtils;
   private final AuthRepository authRepository;
+  private final PasswordEncoder passwordEncoder;
 
   public Optional<UsersEntity> findByUserId(String userId) {
 
@@ -31,7 +33,7 @@ public class UserService {
     UsersEntity usersEntity =
         usersRepository.save(
             UsersEntity.builder()
-                .pw(userRequest.getUserPw())
+                .pw(passwordEncoder.encode(userRequest.getUserPw()))
                 .userId(userRequest.getUserId())
                 .build());
 
@@ -45,17 +47,20 @@ public class UserService {
   }
 
   @Transactional
-  public TokenResponse signIn(UserRequest userRequest) {
+  public TokenResponse signIn(UserRequest userRequest) throws Exception {
     UsersEntity usersEntity =
         usersRepository
-            .findByUserIdAndPw(userRequest.getUserId(), userRequest.getUserPw())
+            .findByUserId(userRequest.getUserId())
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
     AuthEntity authEntity =
         authRepository
             .findByUsersEntityId(usersEntity.getId())
             .orElseThrow(() -> new IllegalArgumentException("Token 이 존재하지 않습니다."));
+    if (!passwordEncoder.matches(userRequest.getUserPw(), usersEntity.getPw())) {
+      throw new Exception("비밀번호가 일치하지 않습니다.");
+    }
     String accessToken = "";
-    String refreshToken= authEntity.getRefreshToken();
+    String refreshToken = authEntity.getRefreshToken();
 
     if (tokenUtils.isValidRefreshToken(refreshToken)) {
       accessToken = tokenUtils.generateJwtToken(authEntity.getUsersEntity());
@@ -64,6 +69,7 @@ public class UserService {
           .REFRESH_TOKEN(authEntity.getRefreshToken())
           .build();
     } else {
+      accessToken = tokenUtils.generateJwtToken(authEntity.getUsersEntity());
       refreshToken = tokenUtils.saveRefreshToken(usersEntity);
       authEntity.refreshUpdate(refreshToken);
     }
